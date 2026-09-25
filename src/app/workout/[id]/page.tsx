@@ -89,26 +89,26 @@ export default function WorkoutDetails({ params }: { params: Params }) {
     <div className="min-h-screen bg-[#0a0a0a] text-white py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* ব্যাক বা লিঙ্ক */}
+
         <Link href="/" className="text-xs font-bold text-zinc-400 hover:text-white mb-8 inline-block">
           ← BACK TO LIBRARY
         </Link>
 
-        {/* মেইন ডিটেইলস কার্ড কন্টেইনার */}
+        
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start bg-[#121212] border border-zinc-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl">
           
-          {/* বামপাশের ইমেজ সেকশন */}
+
           <div className="lg:col-span-6 rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 h-[380px] sm:h-[480px]">
             <img src={workout.image} alt={workout.name} className="w-full h-full object-cover" />
           </div>
 
-          {/* ডানপাশের ইনফো ও ডিটেইলস সেকশন */}
+     
           <div className="lg:col-span-6 space-y-6">
             <div>
               <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white mb-2">{workout.name}</h1>
               <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">{workout.description}</p>
               
-              {/* মাসল গ্রুপ ট্যাগ (নিয়ন গ্রীন ব্যাকগ্রাউন্ড) */}
+        
               <div className="flex flex-wrap gap-2 mt-4">
                 {workout.muscleGroups.map((group, idx) => (
                   <span key={idx} className="bg-[#ccff00] text-black text-[11px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-md">
@@ -118,7 +118,7 @@ export default function WorkoutDetails({ params }: { params: Params }) {
               </div>
             </div>
 
-            {/* মেটিক ডাটা টেবিল (স্ক্রিনশটের স্টাইল অনুযায়ী) */}
+          
             <div className="bg-[#18181b] border border-zinc-800/80 rounded-2xl overflow-hidden text-xs">
               <div className="flex justify-between items-center px-4 py-3 border-b border-zinc-800/60">
                 <span className="text-zinc-500 font-bold uppercase tracking-wider">Equipment</span>
@@ -150,7 +150,7 @@ export default function WorkoutDetails({ params }: { params: Params }) {
               </div>
             </div>
 
-            {/* ইন্সট্রাকশনস সেকশন */}
+          
             <div className="space-y-2">
               <h3 className="text-xs font-black uppercase tracking-widest text-zinc-300">Instructions</h3>
               <ol className="space-y-1.5 text-xs text-zinc-400 list-decimal list-inside leading-relaxed">
@@ -160,7 +160,6 @@ export default function WorkoutDetails({ params }: { params: Params }) {
               </ol>
             </div>
 
-            {/* অ্যাকশন বাটন (নিয়ন গ্রীন এবং সেভ বাটন) */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
                 onClick={handlePlanToggle}
