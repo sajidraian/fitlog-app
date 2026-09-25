@@ -2,19 +2,18 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Workout } from "@/types";
+import { initialWorkouts } from "@/data/workouts";
 
 interface PlanContextType {
   plan: Workout[];
   setPlan: React.Dispatch<React.SetStateAction<Workout[]>>;
   saved: Workout[];
-  savedWorkouts: Workout[];
   workouts: Workout[];
   addToPlan: (workout: Workout) => void;
   removeFromPlan: (id: string | number) => void;
   toggleComplete: (id: string | number) => void;
   saveWorkout: (workout: Workout) => void;
   removeSaved: (id: string | number) => void;
-  toggleSaveWorkout: (workout: Workout) => void;
 }
 
 const PlanContext = createContext<PlanContextType | undefined>(undefined);
@@ -22,9 +21,8 @@ const PlanContext = createContext<PlanContextType | undefined>(undefined);
 export const PlanProvider = ({ children }: { children: React.ReactNode }) => {
   const [plan, setPlan] = useState<Workout[]>([]);
   const [saved, setSaved] = useState<Workout[]>([]);
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [workouts] = useState<Workout[]>(initialWorkouts);
 
-  // Load from LocalStorage
   useEffect(() => {
     const storedPlan = localStorage.getItem("fitlog_plan");
     const storedSaved = localStorage.getItem("fitlog_saved");
@@ -32,7 +30,6 @@ export const PlanProvider = ({ children }: { children: React.ReactNode }) => {
     if (storedSaved) setSaved(JSON.parse(storedSaved));
   }, []);
 
-  // Save to LocalStorage
   useEffect(() => {
     localStorage.setItem("fitlog_plan", JSON.stringify(plan));
   }, [plan]);
@@ -43,18 +40,18 @@ export const PlanProvider = ({ children }: { children: React.ReactNode }) => {
 
   const addToPlan = (workout: Workout) => {
     if (plan.length >= 5) return;
-    if (!plan.some((item: Workout) => String(item.id) === String(workout.id))) {
+    if (!plan.some((item) => String(item.id) === String(workout.id))) {
       setPlan([...plan, workout]);
     }
   };
 
   const removeFromPlan = (id: string | number) => {
-    setPlan(plan.filter((item: Workout) => String(item.id) !== String(id)));
+    setPlan(plan.filter((item) => String(item.id) !== String(id)));
   };
 
   const toggleComplete = (id: string | number) => {
     setPlan(
-      plan.map((item: Workout) =>
+      plan.map((item) =>
         String(item.id) === String(id)
           ? { ...item, completed: !item.completed }
           : item
@@ -63,24 +60,13 @@ export const PlanProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const saveWorkout = (workout: Workout) => {
-    if (!saved.some((item: Workout) => String(item.id) === String(workout.id))) {
+    if (!saved.some((item) => String(item.id) === String(workout.id))) {
       setSaved([...saved, workout]);
     }
   };
 
   const removeSaved = (id: string | number) => {
-    setSaved(saved.filter((item: Workout) => String(item.id) !== String(id)));
-  };
-
-  const toggleSaveWorkout = (workout: Workout) => {
-    const exists = saved.some(
-      (item: Workout) => String(item.id) === String(workout.id)
-    );
-    if (exists) {
-      removeSaved(workout.id);
-    } else {
-      saveWorkout(workout);
-    }
+    setSaved(saved.filter((item) => String(item.id) !== String(id)));
   };
 
   return (
@@ -89,14 +75,12 @@ export const PlanProvider = ({ children }: { children: React.ReactNode }) => {
         plan,
         setPlan,
         saved,
-        savedWorkouts: saved,
         workouts,
         addToPlan,
         removeFromPlan,
         toggleComplete,
         saveWorkout,
         removeSaved,
-        toggleSaveWorkout,
       }}
     >
       {children}
@@ -106,8 +90,6 @@ export const PlanProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const usePlan = () => {
   const context = useContext(PlanContext);
-  if (!context) {
-    throw new Error("usePlan must be used within a PlanProvider");
-  }
+  if (!context) throw new Error("usePlan must be used within PlanProvider");
   return context;
 };
