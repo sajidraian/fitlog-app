@@ -6,38 +6,36 @@ import WorkoutCard from "@/components/WorkoutCard";
 import { Workout } from "@/types";
 
 export default function MyPlanPage() {
-  const { plan, setPlan, toggleComplete } = usePlan();
+  const { plan, toggleComplete } = usePlan();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "duration" | "calories">("name");
 
- 
   const filteredPlan = plan.filter((workout: Workout) => {
-    const matchesSearch =
+    return (
       workout.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       workout.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       workout.muscleGroups?.some((m: string) =>
         m.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    return matchesSearch;
+      )
+    );
   });
-
 
   const sortedPlan = [...filteredPlan].sort((a: Workout, b: Workout) => {
     if (sortBy === "duration") {
-      return (b.duration || 0) - (a.duration || 0);
+      return (b.duration ?? 0) - (a.duration ?? 0);
     }
     if (sortBy === "calories") {
-      return (b.caloriesBurned || 0) - (a.caloriesBurned || 0);
+      return (b.caloriesBurned ?? 0) - (a.caloriesBurned ?? 0);
     }
     return a.name.localeCompare(b.name);
   });
 
   const totalCalories = plan.reduce(
-    (acc: number, item: Workout) => acc + (item.caloriesBurned || 0),
+    (acc: number, item: Workout) => acc + (item.caloriesBurned ?? 0),
     0
   );
   const totalDuration = plan.reduce(
-    (acc: number, item: Workout) => acc + (item.duration || 0),
+    (acc: number, item: Workout) => acc + (item.duration ?? 0),
     0
   );
 
@@ -45,7 +43,6 @@ export default function MyPlanPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-white">My Workout Plan</h1>
 
-    
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
           <p className="text-zinc-400 text-sm">Total Workouts</p>
@@ -80,7 +77,6 @@ export default function MyPlanPage() {
         </select>
       </div>
 
-      
       {sortedPlan.length === 0 ? (
         <div className="text-center py-12 bg-zinc-900/50 rounded-xl border border-zinc-800">
           <p className="text-zinc-400">No workouts found in your plan.</p>
@@ -88,10 +84,7 @@ export default function MyPlanPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedPlan.map((workout: Workout) => (
-            <WorkoutCard
-              key={workout.id}
-              workout={workout}
-            />
+            <WorkoutCard key={workout.id} workout={workout} />
           ))}
         </div>
       )}
