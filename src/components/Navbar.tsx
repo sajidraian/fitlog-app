@@ -13,13 +13,16 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-zinc-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        
-    
-        <Link href="/" className="text-xl font-black tracking-wider text-white">
+
+        {/* Logo */}
+        <Link
+          href="/"
+          className="text-xl font-black tracking-wider text-white"
+        >
           FITLOG
         </Link>
 
-      
+        {/* Navigation */}
         <nav className="flex items-center gap-1 bg-[#121212] border border-zinc-800/80 p-1.5 rounded-full">
           <Link
             href="/"
@@ -29,8 +32,9 @@ export default function Navbar() {
                 : "text-zinc-400 hover:text-white"
             }`}
           >
-            Workouts
+            Workout
           </Link>
+
           <Link
             href="/my-plan"
             className={`px-5 py-2 rounded-full text-xs font-bold transition-all ${
@@ -43,27 +47,34 @@ export default function Navbar() {
           </Link>
         </nav>
 
-  
-        <div className="flex items-center gap-6">
-          
-        
-          <Link href="/my-plan" className="flex items-center gap-2 text-xs font-bold text-zinc-300 hover:text-white transition-all">
+        {/* Counters */}
+        <div className="flex items-center gap-3 sm:gap-6">
+
+          {/* Plan */}
+          <Link
+            href="/my-plan"
+            className="flex items-center gap-2 text-xs font-bold text-zinc-300 hover:text-white transition-all"
+          >
             <span>Plan</span>
+
             <span className="w-6 h-6 rounded-full bg-[#ccff00] text-black font-black flex items-center justify-center text-[11px]">
               {plan.length}
             </span>
           </Link>
 
-       
-          <Link href="/my-plan" className="flex items-center gap-2 text-xs font-bold text-zinc-300 hover:text-white transition-all">
+          {/* Saved */}
+          <Link
+            href="/my-plan"
+            className="flex items-center gap-2 text-xs font-bold text-zinc-300 hover:text-white transition-all"
+          >
             <span>Saved</span>
-            <span className="w-6 h-6 rounded-full bg-[#ccff00] text-black font-black flex items-center justify-center text-[11px]">
+
+            <span className="w-6 h-6 rounded-full border border-[#ccff00] text-[#ccff00] font-black flex items-center justify-center text-[11px]">
               {saved.length}
             </span>
           </Link>
 
         </div>
-
       </div>
     </header>
   );
