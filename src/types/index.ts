@@ -1,10 +1,16 @@
 export interface Workout {
-  id: string | number; // string এবং number দুটোই এলাউ করা হলো
+  id: string | number;
   name: string;
-  equipment: string;
-  duration: number;
-  caloriesBurned: number;
-  rating: number;
-  image: string;
-  completed?: boolean; // completed প্রপার্টি যোগ করা হলো
+  category?: string;
+  equipment?: string;
+  muscleGroups?: string[];
+  description?: string;
+  difficulty?: string;
+  sets?: number;
+  reps?: number;
+  instructions?: string[];
+  duration?: number;
+  caloriesBurned?: number;
+  completed?: boolean;
+  [key: string]: any;
 }

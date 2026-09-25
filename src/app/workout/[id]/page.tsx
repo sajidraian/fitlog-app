@@ -1,232 +1,126 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getWorkoutById } from "@/utils/api";
-import { Workout } from "@/types";
+import React from "react";
+import { useParams } from "next/navigation";
 import { usePlan } from "@/context/PlanContext";
-import toast from "react-hot-toast";
+import { Workout } from "@/types";
+import Link from "next/link";
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
+export default function WorkoutDetailPage() {
+  const params = useParams();
+  const id = params?.id;
+  const { workouts, addToPlan, plan, removeFromPlan } = usePlan();
 
-export default function WorkoutDetailPage({ params }: PageProps) {
-  const { id } = use(params);
-  const [workout, setWorkout] = useState<Workout | null>(null);
-  const [loading, setLoading] = useState(true);
+  const workout = workouts.find(
+    (item: Workout) => String(item.id) === String(id)
+  );
 
-  const { addToPlan, saveWorkout, plan, saved } = usePlan();
-
-  useEffect(() => {
-    async function fetchWorkout() {
-      try {
-        const data = await getWorkoutById(id);
-        if (!data) {
-          notFound();
-        } else {
-          setWorkout(data);
-        }
-      } catch (err) {
-        console.error("Error fetching workout detail:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchWorkout();
-  }, [id]);
-
-  if (loading) {
+  if (!workout) {
     return (
-      <div className="min-h-screen bg-[#0c0d10] flex items-center justify-center text-[#ccff00] font-black text-sm uppercase tracking-widest">
-        Loading Workout...
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h2 className="text-2xl font-bold text-white mb-4">Workout Not Found</h2>
+        <Link
+          href="/"
+          className="text-emerald-400 hover:underline"
+        >
+          ← Back to Workouts
+        </Link>
       </div>
     );
   }
 
-  if (!workout) {
-    return null;
-  }
-
-  const isInPlan = plan.some((w) => w.id === workout.id);
-  const isSaved = saved.some((w) => w.id === workout.id);
-
-  const handleAddToPlan = () => {
-    if (isInPlan) {
-      toast.error("Already in today's plan!");
-      return;
-    }
-    if (plan.length >= 5) {
-      toast.error("Plan limit reached (Max 5 exercises)!");
-      return;
-    }
-    addToPlan(workout);
-    toast.success("Added to today's plan!");
-  };
-
-  const handleSaveWorkout = () => {
-    if (isSaved) {
-      toast.error("Already saved!");
-      return;
-    }
-    saveWorkout(workout);
-    toast.success("Saved for later!");
-  };
+  const isInPlan = plan.some((item: Workout) => String(item.id) === String(workout.id));
 
   return (
-    <div className="min-h-screen bg-[#0c0d10] text-white py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        
-        {/* Back Navigation Link */}
-        <div>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-[#ccff00] transition-colors uppercase tracking-wider"
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <Link
+        href="/"
+        className="inline-flex items-center text-zinc-400 hover:text-white mb-6 transition-colors"
+      >
+        ← Back to Workouts
+      </Link>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 md:p-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              {workout.name}
+            </h1>
+            <div className="flex flex-wrap gap-2">
+              {workout.muscleGroups?.map((group: string, idx: number) => (
+                <span
+                  key={idx}
+                  className="bg-emerald-500/10 text-emerald-400 text-xs px-2.5 py-1 rounded-full border border-emerald-500/20"
+                >
+                  {group}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={() =>
+              isInPlan ? removeFromPlan(workout.id) : addToPlan(workout)
+            }
+            className={`px-6 py-2.5 rounded-xl font-medium transition-colors ${
+              isInPlan
+                ? "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
+                : "bg-emerald-500 text-black hover:bg-emerald-400"
+            }`}
           >
-            <span>←</span> Back to Library
-          </Link>
+            {isInPlan ? "Remove from Plan" : "Add to Plan"}
+          </button>
         </div>
 
-        {/* Two-Column Responsive Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 bg-[#12141a] border border-[#1e222a] rounded-3xl p-6 sm:p-8 lg:p-10">
-          
-          {/* Left Side — Visual / Media */}
-          <div className="lg:col-span-5 flex flex-col justify-between">
-            <div className="relative w-full aspect-[4/3] sm:aspect-square lg:aspect-auto lg:h-full min-h-[320px] rounded-2xl overflow-hidden border border-[#232730] bg-[#1a1d26]">
-              <Image
-                src={workout.image}
-                alt={workout.name}
-                fill
-                priority
-                className="object-cover object-center"
-              />
-            </div>
+        {workout.description && (
+          <p className="text-zinc-300 mb-8 text-lg leading-relaxed">
+            {workout.description}
+          </p>
+        )}
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-800">
+            <p className="text-zinc-400 text-sm">Difficulty</p>
+            <p className="text-white font-semibold capitalize">
+              {workout.difficulty || "N/A"}
+            </p>
           </div>
-
-          {/* Right Side — Details & Specs */}
-          <div className="lg:col-span-7 space-y-6">
-            
-            {/* Header & Category Tags */}
-            <div className="space-y-3">
-              <div className="flex flex-wrap gap-2">
-                {workout.muscleGroups.map((group, idx) => (
-                  <span
-                    key={idx}
-                    className="bg-[#ccff00] text-black text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider"
-                  >
-                    {group}
-                  </span>
-                ))}
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-white leading-none">
-                {workout.name}
-              </h1>
-
-              <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
-                {workout.description ||
-                  "A compound press that builds chest thickness, triceps, and pressing power from a stable bench."}
-              </p>
-            </div>
-
-            {/* Key Specs Table / Panel */}
-            <div className="bg-[#0a0a0c] border border-[#1e222a] rounded-2xl p-4 sm:p-5 space-y-3 text-xs">
-              <h3 className="text-gray-400 font-black uppercase tracking-wider text-[10px] border-b border-[#1e222a] pb-2">
-                KEY SPECIFICATIONS
-              </h3>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-gray-500 font-bold uppercase text-[10px]">Equipment</p>
-                  <p className="font-extrabold text-white mt-0.5">{workout.equipment}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 font-bold uppercase text-[10px]">Difficulty</p>
-                  <p className="font-extrabold text-[#ccff00] mt-0.5">{workout.difficulty || "Intermediate"}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 font-bold uppercase text-[10px]">Sets</p>
-                  <p className="font-extrabold text-white mt-0.5">{workout.sets || 4}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 font-bold uppercase text-[10px]">Reps</p>
-                  <p className="font-extrabold text-white mt-0.5">{workout.reps || "6-8"}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 font-bold uppercase text-[10px]">Duration</p>
-                  <p className="font-extrabold text-white mt-0.5">⏱ {workout.duration} min</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 font-bold uppercase text-[10px]">Calories</p>
-                  <p className="font-extrabold text-white mt-0.5">🔥 {workout.caloriesBurned} kcal</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 font-bold uppercase text-[10px]">Rating</p>
-                  <p className="font-extrabold text-white mt-0.5">⭐ {workout.rating}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Instructions Section */}
-            <div className="space-y-3">
-              <h3 className="font-black text-sm uppercase tracking-wider text-white">
-                INSTRUCTIONS
-              </h3>
-              
-              <ol className="space-y-2.5 text-xs text-gray-300">
-                {(
-                  workout.instructions || [
-                    "Lie flat on the bench, set eyes under the bar, plant feet firmly, and grip slightly wider than shoulder-width.",
-                    "Unrack with tight upper back, lower the bar smoothly to mid-chest while tucking elbows at roughly 45 degrees.",
-                    "Press straight up explosively, driving through the floor and squeezing chest at the top lockout.",
-                    "Maintain arch and body tension across all reps before racking safely."
-                  ]
-                ).map((step, index) => (
-                  <li key={index} className="flex gap-3 bg-[#0a0a0c]/50 p-3 rounded-xl border border-[#1e222a]">
-                    <span className="w-5 h-5 rounded-full bg-[#ccff00] text-black font-black text-[10px] flex items-center justify-center flex-shrink-0">
-                      {index + 1}
-                    </span>
-                    <span className="leading-relaxed">{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            {/* Call-to-Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <button
-                onClick={handleAddToPlan}
-                disabled={isInPlan}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-black text-xs uppercase tracking-wider transition-all ${
-                  isInPlan
-                    ? "bg-[#1f260a] text-[#ccff00] border border-[#ccff00]/40 cursor-not-allowed"
-                    : "bg-[#ccff00] text-black hover:bg-[#b5e600] active:scale-95 shadow-lg"
-                }`}
-              >
-                <span>➕</span>
-                <span>{isInPlan ? "Added to Plan" : "Add to today's plan"}</span>
-              </button>
-
-              <button
-                onClick={handleSaveWorkout}
-                disabled={isSaved}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-black text-xs uppercase tracking-wider transition-all border ${
-                  isSaved
-                    ? "border-[#ccff00]/40 text-[#ccff00] bg-[#1a1d26] cursor-not-allowed"
-                    : "border-[#2a2f3d] text-white hover:border-gray-500 bg-[#12141a] active:scale-95"
-                }`}
-              >
-                <span>🔖</span>
-                <span>{isSaved ? "Saved" : "Save for later"}</span>
-              </button>
-            </div>
-
+          <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-800">
+            <p className="text-zinc-400 text-sm">Target Sets</p>
+            <p className="text-white font-semibold">
+              {workout.sets || "N/A"}
+            </p>
           </div>
-
+          <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-800">
+            <p className="text-zinc-400 text-sm">Target Reps</p>
+            <p className="text-white font-semibold">
+              {workout.reps || "N/A"}
+            </p>
+          </div>
+          <div className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-800">
+            <p className="text-zinc-400 text-sm">Est. Duration</p>
+            <p className="text-white font-semibold">
+              {workout.duration ? `${workout.duration} mins` : "N/A"}
+            </p>
+          </div>
         </div>
 
+        {workout.instructions && workout.instructions.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold text-white mb-4">Instructions</h2>
+            <ol className="space-y-3">
+              {workout.instructions.map((step: string, index: number) => (
+                <li
+                  key={index}
+                  className="flex gap-4 text-zinc-300 bg-zinc-800/30 p-4 rounded-xl border border-zinc-800/50"
+                >
+                  <span className="font-bold text-emerald-400">{index + 1}.</span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
       </div>
     </div>
   );
