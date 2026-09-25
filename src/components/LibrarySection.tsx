@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Workout } from "@/types";
 import { getAllWorkouts } from "@/utils/api";
+import { Workout } from "@/types";
 import WorkoutCard from "@/components/WorkoutCard";
 
 export default function LibrarySection() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,7 +16,7 @@ export default function LibrarySection() {
         const data = await getAllWorkouts();
         setWorkouts(data);
       } catch (error) {
-        console.error("Error loading workouts:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -23,27 +24,43 @@ export default function LibrarySection() {
     loadData();
   }, []);
 
+  const filteredWorkouts = workouts.filter((w) => {
+    const query = searchQuery.toLowerCase();
+    const nameMatch = w.name.toLowerCase().includes(query);
+    const tagMatch = w.muscleGroups?.some((group) => group.toLowerCase().includes(query));
+    return nameMatch || tagMatch;
+  });
+
   return (
-    <section id="library" className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-10">
-        <h2 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tight">
-          THE LIBRARY
-        </h2>
-        <p className="text-gray-400 text-sm mt-1">
-          Twelve lifts covering every major muscle group.
-        </p>
+    <section id="workout-library" className="space-y-6 pt-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">THE LIBRARY</h2>
+          <p className="text-zinc-400 text-xs sm:text-sm mt-1 font-medium">Twelve lifts covering every major muscle group.</p>
+        </div>
+
+        <div className="w-full md:w-72">
+          <input
+            type="text"
+            placeholder="Search by name or tag..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-[#121212] border border-zinc-800 focus:border-[#ccff00] px-4 py-2.5 rounded-xl text-xs text-white placeholder-zinc-500 outline-none transition-all"
+          />
+        </div>
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-12 h-12 border-4 border-[#ccff00] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-400 text-sm font-semibold animate-pulse">
-            Loading workouts…
-          </p>
+        <div className="flex justify-center py-20">
+          <div className="w-8 h-8 border-4 border-[#ccff00] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : filteredWorkouts.length === 0 ? (
+        <div className="text-center py-16 bg-[#121212] border border-zinc-800 rounded-2xl">
+          <p className="text-zinc-400 text-xs font-bold uppercase">No workouts found matching "{searchQuery}"</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {workouts.map((workout) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredWorkouts.map((workout) => (
             <WorkoutCard key={workout.id} workout={workout} />
           ))}
         </div>

@@ -1,16 +1,19 @@
 export interface Workout {
-  id: string | number;
+  id: number;
   name: string;
-  category?: string;
-  equipment?: string;
-  muscleGroups?: string[];
-  description?: string;
-  difficulty?: string;
-  sets?: number;
-  reps?: number;
-  instructions?: string[];
-  duration?: number;
-  caloriesBurned?: number;
-  completed?: boolean;
-  [key: string]: any;
+  image: string;
+  muscleGroups: string[];
+  equipment: string;
+  difficulty: string;
+  duration: number;
+  caloriesBurned: number;
+  sets: number;
+  reps: string;
+  rating: number;
+  description: string;
+  instructions: string[];
+}
+
+export interface PlanWorkout extends Workout {
+  isDone: boolean;
 }

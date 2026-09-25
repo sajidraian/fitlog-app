@@ -1,95 +1,74 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Workout } from "@/types";
-import { initialWorkouts } from "@/data/workouts";
 
 interface PlanContextType {
   plan: Workout[];
-  setPlan: React.Dispatch<React.SetStateAction<Workout[]>>;
   saved: Workout[];
-  workouts: Workout[];
   addToPlan: (workout: Workout) => void;
-  removeFromPlan: (id: string | number) => void;
-  toggleComplete: (id: string | number) => void;
-  saveWorkout: (workout: Workout) => void;
-  removeSaved: (id: string | number) => void;
+  removeFromPlan: (id: Workout["id"]) => void;
+  addToSaved: (workout: Workout) => void;
+  removeFromSaved: (id: Workout["id"]) => void;
 }
 
 const PlanContext = createContext<PlanContextType | undefined>(undefined);
 
-export const PlanProvider = ({ children }: { children: React.ReactNode }) => {
+export function PlanProvider({ children }: { children: ReactNode }) {
   const [plan, setPlan] = useState<Workout[]>([]);
   const [saved, setSaved] = useState<Workout[]>([]);
-  const [workouts] = useState<Workout[]>(initialWorkouts);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const storedPlan = localStorage.getItem("fitlog_plan");
-    const storedSaved = localStorage.getItem("fitlog_saved");
-    if (storedPlan) setPlan(JSON.parse(storedPlan));
-    if (storedSaved) setSaved(JSON.parse(storedSaved));
+    const savedPlan = localStorage.getItem("fitlog_plan");
+    const savedBookmarks = localStorage.getItem("fitlog_saved");
+    if (savedPlan) setPlan(JSON.parse(savedPlan));
+    if (savedBookmarks) setSaved(JSON.parse(savedBookmarks));
+    setIsLoaded(true);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("fitlog_plan", JSON.stringify(plan));
-  }, [plan]);
+    if (isLoaded) {
+      localStorage.setItem("fitlog_plan", JSON.stringify(plan));
+    }
+  }, [plan, isLoaded]);
 
   useEffect(() => {
-    localStorage.setItem("fitlog_saved", JSON.stringify(saved));
-  }, [saved]);
+    if (isLoaded) {
+      localStorage.setItem("fitlog_saved", JSON.stringify(saved));
+    }
+  }, [saved, isLoaded]);
 
   const addToPlan = (workout: Workout) => {
     if (plan.length >= 5) return;
-    if (!plan.some((item) => String(item.id) === String(workout.id))) {
+    if (!plan.some((item) => item.id === workout.id)) {
       setPlan([...plan, workout]);
     }
   };
 
-  const removeFromPlan = (id: string | number) => {
-    setPlan(plan.filter((item) => String(item.id) !== String(id)));
+  const removeFromPlan = (id: Workout["id"]) => {
+    setPlan(plan.filter((item) => item.id !== id));
   };
 
-  const toggleComplete = (id: string | number) => {
-    setPlan(
-      plan.map((item) =>
-        String(item.id) === String(id)
-          ? { ...item, completed: !item.completed }
-          : item
-      )
-    );
-  };
-
-  const saveWorkout = (workout: Workout) => {
-    if (!saved.some((item) => String(item.id) === String(workout.id))) {
+  const addToSaved = (workout: Workout) => {
+    if (!saved.some((item) => item.id === workout.id)) {
       setSaved([...saved, workout]);
     }
   };
 
-  const removeSaved = (id: string | number) => {
-    setSaved(saved.filter((item) => String(item.id) !== String(id)));
+  const removeFromSaved = (id: Workout["id"]) => {
+    setSaved(saved.filter((item) => item.id !== id));
   };
 
   return (
-    <PlanContext.Provider
-      value={{
-        plan,
-        setPlan,
-        saved,
-        workouts,
-        addToPlan,
-        removeFromPlan,
-        toggleComplete,
-        saveWorkout,
-        removeSaved,
-      }}
-    >
+    <PlanContext.Provider value={{ plan, saved, addToPlan, removeFromPlan, addToSaved, removeFromSaved }}>
       {children}
     </PlanContext.Provider>
   );
-};
+}
 
-export const usePlan = () => {
+export function usePlan() {
   const context = useContext(PlanContext);
-  if (!context) throw new Error("usePlan must be used within PlanProvider");
+  if (!context) throw new Error("usePlan must be used within a PlanProvider");
   return context;
-};
+}
