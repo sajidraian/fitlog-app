@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -18,19 +19,30 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-zinc-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-
+        {/* Main Navbar */}
         <div className="h-20 flex items-center justify-between">
 
-       
+          {/* Logo + Brand */}
           <Link
             href="/"
             onClick={closeMenu}
-            className="text-xl font-black tracking-wider text-white"
+            className="flex items-center gap-2.5"
           >
-            FITLOG
+            <Image
+              src="/logo.png"
+              alt="FitLog logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 object-contain"
+              priority
+            />
+
+            <span className="text-xl font-black tracking-wider text-white">
+              FITLOG
+            </span>
           </Link>
 
-        
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 bg-[#121212] border border-zinc-800/80 p-1.5 rounded-full">
             <Link
               href="/"
@@ -55,10 +67,10 @@ export default function Navbar() {
             </Link>
           </nav>
 
-  
+          {/* Desktop Counters */}
           <div className="hidden md:flex items-center gap-5">
 
-          
+            {/* Plan */}
             <Link
               href="/my-plan"
               className="flex items-center gap-2 text-xs font-bold text-zinc-300 hover:text-white transition-all"
@@ -70,7 +82,7 @@ export default function Navbar() {
               </span>
             </Link>
 
-      
+            {/* Saved */}
             <Link
               href="/my-plan"
               className="flex items-center gap-2 text-xs font-bold text-zinc-300 hover:text-white transition-all"
@@ -83,7 +95,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-    
+          {/* Mobile Menu Button */}
           <button
             type="button"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -103,12 +115,12 @@ export default function Navbar() {
           </button>
         </div>
 
-       
+        {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden pb-5">
             <div className="bg-[#121212] border border-zinc-800 rounded-2xl p-3 space-y-2">
 
-            
+              {/* Workout */}
               <Link
                 href="/"
                 onClick={closeMenu}
@@ -125,7 +137,7 @@ export default function Navbar() {
                 )}
               </Link>
 
-           
+              {/* My Plan */}
               <Link
                 href="/my-plan"
                 onClick={closeMenu}
@@ -142,9 +154,10 @@ export default function Navbar() {
                 )}
               </Link>
 
-              
+              {/* Mobile Counters */}
               <div className="border-t border-zinc-800 pt-3 mt-3 grid grid-cols-2 gap-2">
 
+                {/* Plan */}
                 <Link
                   href="/my-plan"
                   onClick={closeMenu}
@@ -159,7 +172,7 @@ export default function Navbar() {
                   </span>
                 </Link>
 
-            
+                {/* Saved */}
                 <Link
                   href="/my-plan"
                   onClick={closeMenu}
